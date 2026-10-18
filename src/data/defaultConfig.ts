@@ -1,4 +1,5 @@
 import { MediaIdentity, MateriSlide, QuizQuestion } from '../types';
+import { QUESTION_BANK_150 } from './questionBank150';
 
 export const DEFAULT_IDENTITY: MediaIdentity = {
   mediaTitle: 'Petualangan Pecahan & Desimal Master',
@@ -154,68 +155,7 @@ export const DEFAULT_MATERI_SLIDES: MateriSlide[] = [
   }
 ];
 
-export const DEFAULT_QUIZ_QUESTIONS: QuizQuestion[] = [
-  {
-    id: 1,
-    question: 'Bentuk desimal dari pecahan biasa 3/4 adalah...',
-    options: [
-      '0,34',
-      '0,43',
-      '0,75',
-      '0,65'
-    ],
-    correctAnswerIndex: 2,
-    explanation: 'Cara 1: Ubah penyebut menjadi 100 dengan mengalikan pembilang dan penyebut dengan 25: (3 × 25) / (4 × 25) = 75/100 = 0,75. Cara 2: Pembagian bersusun 3 ÷ 4 = 0,75.'
-  },
-  {
-    id: 2,
-    question: 'Bentuk pecahan biasa paling sederhana dari bilangan desimal 0,65 adalah...',
-    options: [
-      '65/10',
-      '13/20',
-      '13/50',
-      '6/5'
-    ],
-    correctAnswerIndex: 1,
-    explanation: 'Angka 0,65 memiliki 2 angka di belakang koma, sehingga ditulis 65/100. Sederhanakan dengan membagi pembilang dan penyebut dengan FPB-nya yaitu 5: (65 ÷ 5) / (100 ÷ 5) = 13/20.'
-  },
-  {
-    id: 3,
-    question: 'Hasil dari operasi penjumlahan pecahan dan desimal: 1/2 + 0,25 adalah...',
-    options: [
-      '0,75 (atau 3/4)',
-      '0,30',
-      '1,25',
-      '0,50'
-    ],
-    correctAnswerIndex: 0,
-    explanation: 'Samakan bentuknya ke desimal: 1/2 = 0,5. Maka: 0,5 + 0,25 = 0,75. Dalam bentuk pecahan biasa, 0,75 sama dengan 3/4.'
-  },
-  {
-    id: 4,
-    question: 'Manakah tanda perbandingan yang benar untuk mengisi titik-titik berikut: 2/5 ... 0,35 ?',
-    options: [
-      '< (lebih kecil)',
-      '> (lebih besar)',
-      '= (sama dengan)',
-      '≤ (kurang dari sama dengan)'
-    ],
-    correctAnswerIndex: 1,
-    explanation: 'Ubah 2/5 menjadi desimal: (2 × 2) / (5 × 2) = 4/10 = 0,40. Bandingkan 0,40 dengan 0,35. Karena 0,40 > 0,35, maka 2/5 > 0,35.'
-  },
-  {
-    id: 5,
-    question: 'Ibu membeli gula pasir seberat 1,5 kg. Kemudian Ibu menggunakan 3/4 kg gula tersebut untuk membuat kue bolu. Berapa sisa gula pasir Ibu sekarang?',
-    options: [
-      '0,25 kg',
-      '0,50 kg',
-      '0,75 kg (atau 3/4 kg)',
-      '1,00 kg'
-    ],
-    correctAnswerIndex: 2,
-    explanation: 'Sisa gula = 1,5 kg - 3/4 kg. Ubah 3/4 kg menjadi desimal yaitu 0,75 kg. Maka: 1,50 kg - 0,75 kg = 0,75 kg (senilai dengan 3/4 kg).'
-  }
-];
+export const DEFAULT_QUIZ_QUESTIONS: QuizQuestion[] = QUESTION_BANK_150;
 
 export const GOOGLE_APPS_SCRIPT_TEMPLATE = `/**
  * =========================================================================
