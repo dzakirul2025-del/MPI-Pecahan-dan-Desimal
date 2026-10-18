@@ -20,8 +20,10 @@ import {
   ShieldCheck,
   CheckSquare,
   Smartphone,
-  Laptop
+  Laptop,
+  BarChart3
 } from 'lucide-react';
+import { StudentProgressReport } from '../types';
 
 interface TeacherSettingsModalProps {
   isOpen: boolean;
@@ -60,6 +62,16 @@ export const TeacherSettingsModal: React.FC<TeacherSettingsModalProps> = ({
 
   // Local Logs
   const [logs, setLogs] = useState<StoredLog[]>(getLocalBackupLogs());
+
+  // Stored Student Progress Report
+  const storedReport: StudentProgressReport | null = React.useMemo(() => {
+    try {
+      const raw = localStorage.getItem('mpi_progress_report_v2_math');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, [isOpen, activeTab]);
 
   // Interactive QA Checklist state
   const [checkedList, setCheckedList] = useState<Record<string, boolean>>({
@@ -568,6 +580,75 @@ export const TeacherSettingsModal: React.FC<TeacherSettingsModalProps> = ({
           {/* TAB 5: CADANGAN DATA LOKAL & LOGS */}
           {activeTab === 'logs' && (
             <div className="space-y-4 animate-fadeIn">
+              {/* Active Student Progress Card */}
+              {storedReport && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50/80 border border-indigo-200 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-indigo-700" />
+                      <span className="font-heading font-extrabold text-sm text-indigo-950">
+                        Laporan Progres Pengerjaan Siswa Terkini
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-indigo-600">
+                      Update: {storedReport.lastUpdated}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-slate-400 block uppercase">Nama Siswa</span>
+                      <span className="font-heading font-black text-xs text-slate-800 line-clamp-1 mt-0.5" title={storedReport.studentName}>
+                        {storedReport.studentName}
+                      </span>
+                      <span className="text-[9px] text-blue-600 font-semibold block">{storedReport.studentClass}</span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-blue-600 block uppercase">Soal Dikerjakan</span>
+                      <span className="font-heading font-black text-xl text-blue-900 mt-0.5 block">
+                        {storedReport.totalQuestionsAttempted}
+                      </span>
+                      <span className="text-[9px] text-slate-400 block">Total Soal</span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-emerald-600 block uppercase">Jawaban Benar</span>
+                      <span className="font-heading font-black text-xl text-emerald-700 mt-0.5 block">
+                        {storedReport.totalCorrect}
+                      </span>
+                      <span className="text-[9px] text-emerald-600 block">Poin Benar</span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-red-600 block uppercase">Jawaban Salah</span>
+                      <span className="font-heading font-black text-xl text-red-700 mt-0.5 block">
+                        {storedReport.totalWrong}
+                      </span>
+                      <span className="text-[9px] text-red-600 block">Perlu Belajar</span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-amber-600 block uppercase">Nilai Skor</span>
+                      <span className="font-heading font-black text-xl text-amber-800 mt-0.5 block">
+                        {storedReport.latestScore}
+                      </span>
+                      <span className="text-[9px] text-amber-700 font-bold block">
+                        {storedReport.latestScore >= identityForm.passingScore ? '✓ TUNTAS' : '• REMEDIAL'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-white rounded-xl border border-indigo-100 text-center shadow-2xs">
+                      <span className="text-[10px] font-bold text-indigo-600 block uppercase">Rata-rata</span>
+                      <span className="font-heading font-black text-xl text-indigo-900 mt-0.5 block">
+                        {storedReport.averageScore}
+                      </span>
+                      <span className="text-[9px] text-indigo-600 font-semibold block">Akurasi {storedReport.averageAccuracy}%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                 <div>
                   <span className="font-bold text-sm text-slate-800 block">

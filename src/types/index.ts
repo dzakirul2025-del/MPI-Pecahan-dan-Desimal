@@ -70,6 +70,65 @@ export interface ReflectionSubmission {
   additionalNotes: string;
 }
 
+export interface SubtopicStat {
+  subtopic: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  accuracy: number;
+  masteryStatus: 'Sangat Mahir' | 'Cukup Terampil' | 'Perlu Bimbingan';
+  recommendation: string;
+}
+
+export interface DrillAnswerDetail {
+  questionId: number;
+  questionText: string;
+  subtopic: string;
+  studentAnswerIndex: number;
+  studentAnswerText: string;
+  correctAnswerIndex: number;
+  correctAnswerText: string;
+  isCorrect: boolean;
+  explanation: string;
+}
+
+export interface DrillAttemptRecord {
+  id: string;
+  timestamp: string;
+  drillTitle: string;
+  totalQuestions: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  score: number;
+  durationSeconds?: number;
+  status: 'TUNTAS' | 'PERLU BIMBINGAN';
+  subtopicBreakdown?: {
+    subtopic: string;
+    total: number;
+    correct: number;
+    wrong: number;
+    accuracy: number;
+  }[];
+  answersDetail?: DrillAnswerDetail[];
+}
+
+export interface StudentProgressReport {
+  studentName: string;
+  studentClass: string;
+  studentNumber: string;
+  sessionId: string;
+  lastUpdated: string;
+  attempts: DrillAttemptRecord[];
+  totalQuestionsAttempted: number;
+  totalCorrect: number;
+  totalWrong: number;
+  latestScore: number;
+  highestScore: number;
+  averageScore: number;
+  averageAccuracy: number;
+  subtopicStats?: SubtopicStat[];
+}
+
 export type ViewStage = 'opening' | 'tujuan' | 'materi' | 'latihan' | 'refleksi' | 'selesai';
 
 export interface AppConfig {
@@ -77,4 +136,7 @@ export interface AppConfig {
   scriptUrl: string; // Google Apps Script Web App URL
   enableSoundEffects: boolean;
   enableBgm: boolean;
+  youtubeMusicUrl?: string;
+  bgmMode?: 'youtube' | 'synth';
 }
+

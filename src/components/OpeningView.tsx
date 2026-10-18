@@ -40,7 +40,7 @@ export const OpeningView: React.FC<OpeningViewProps> = ({
   onToggleBgm
 }) => {
   const [name, setName] = useState(session?.studentName || '');
-  const [selectedClass, setSelectedClass] = useState(session?.studentClass || 'Kelas 5A');
+  const [selectedClass, setSelectedClass] = useState(session?.studentClass || 'Kelas 6A');
   const [customClass, setCustomClass] = useState('');
   const [studentNumber, setStudentNumber] = useState(session?.studentNumber || '');
   const [errorMsg, setErrorMsg] = useState('');
@@ -58,7 +58,7 @@ export const OpeningView: React.FC<OpeningViewProps> = ({
       return;
     }
 
-    const finalClass = selectedClass === 'Lainnya (Ketik Manual)' ? (customClass.trim() || 'Kelas 5') : selectedClass;
+    const finalClass = selectedClass === 'Lainnya (Ketik Manual)' ? (customClass.trim() || 'Kelas 6') : selectedClass;
 
     setErrorMsg('');
     audioManager.playCorrect();
@@ -68,7 +68,7 @@ export const OpeningView: React.FC<OpeningViewProps> = ({
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
       {/* Hero Welcome Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-sky-400 via-blue-500 to-indigo-600 text-white p-6 sm:p-10 shadow-xl border border-sky-300">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700 text-white p-6 sm:p-10 shadow-xl border border-sky-300">
         <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-60 h-60 bg-yellow-300/10 rounded-full blur-2xl translate-y-20 -translate-x-10 pointer-events-none" />
 
@@ -76,7 +76,7 @@ export const OpeningView: React.FC<OpeningViewProps> = ({
           <div className="space-y-4 max-w-2xl text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-xs sm:text-sm font-semibold tracking-wide text-sky-100">
               <Sparkles className="w-4 h-4 text-yellow-300 animate-spin" />
-              <span>Media Pembelajaran Interaktif (MPI) Digital</span>
+              <span>Media Pembelajaran Interaktif (MPI) Digital Matematika</span>
             </div>
 
             <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight drop-shadow-xs">
@@ -84,7 +84,7 @@ export const OpeningView: React.FC<OpeningViewProps> = ({
             </h1>
 
             <p className="text-sky-100 text-sm sm:text-base leading-relaxed">
-              Selamat datang di petualangan seru mengenal rahasia siklus air bumi, eksplorasi animasi interaktif, mini-game asyik, dan uji kemampuanmu secara digital!
+              Selamat datang di petualangan seru menguasai pecahan dan bilangan desimal! Jelajahi visualisasi interaktif pizza potongan, latihan drill 150 butir soal terverifikasi, dan pantau progres belajarmu secara real-time.
             </p>
 
             {/* School & Teacher Chips */}

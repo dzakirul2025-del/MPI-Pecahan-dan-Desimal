@@ -1,5 +1,5 @@
 import React from 'react';
-import { StudentSession, MediaIdentity } from '../types';
+import { StudentSession, MediaIdentity, StudentProgressReport } from '../types';
 import { audioManager } from '../utils/audio';
 import { 
   Award, 
@@ -8,25 +8,31 @@ import {
   RotateCcw, 
   BookOpen, 
   Sparkles, 
-  HeartHandshake,
   Calendar,
-  UserCheck
+  UserCheck,
+  BarChart3,
+  TrendingUp,
+  FileCheck
 } from 'lucide-react';
 
 interface SelesaiViewProps {
   session: StudentSession;
   identity: MediaIdentity;
   lastQuizScore: number | null;
+  progressReport: StudentProgressReport | null;
   onReviewMateri: () => void;
   onRetryQuiz: () => void;
+  onOpenProgressModal: () => void;
 }
 
 export const SelesaiView: React.FC<SelesaiViewProps> = ({
   session,
   identity,
   lastQuizScore,
+  progressReport,
   onReviewMateri,
-  onRetryQuiz
+  onRetryQuiz,
+  onOpenProgressModal
 }) => {
   const isPassed = (lastQuizScore ?? 0) >= identity.passingScore;
   const currentDate = new Date().toLocaleDateString('id-ID', {
@@ -53,9 +59,98 @@ export const SelesaiView: React.FC<SelesaiViewProps> = ({
           Selamat, Kamu Telah Menyelesaikan MPI!
         </h1>
         <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto">
-          Terima kasih telah aktif membaca materi, mencoba simulasi interaktif, mengerjakan kuis, dan menuliskan refleksi.
+          Terima kasih telah aktif membaca materi matematika pecahan & desimal, mencoba simulasi interaktif, menyelesaikan latihan drill, dan mengisi refleksi.
         </p>
       </div>
+
+      {/* MANDATORY STUDENT PROGRESS REPORT CARD */}
+      {progressReport && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-indigo-200 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-indigo-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                <BarChart3 className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-600 block">
+                  Rekapitulasi Prestasi Belajar
+                </span>
+                <h2 className="font-heading text-lg sm:text-xl font-extrabold text-slate-800">
+                  Laporan Hasil & Progres Pengerjaan Siswa
+                </h2>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                audioManager.playClick();
+                onOpenProgressModal();
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs self-start sm:self-auto cursor-pointer"
+            >
+              <FileCheck className="w-4 h-4" />
+              <span>Buka & Cetak Lembar Laporan Lengkap</span>
+            </button>
+          </div>
+
+          {/* 6 Required Fields Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* 1. Nama Siswa */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-slate-400 block">Nama Siswa</span>
+              <div className="font-heading font-black text-sm text-slate-800 mt-1 line-clamp-1" title={progressReport.studentName}>
+                {progressReport.studentName}
+              </div>
+              <span className="text-[10px] text-blue-600 font-semibold">{progressReport.studentClass}</span>
+            </div>
+
+            {/* 2. Jumlah Soal yang Dikerjakan */}
+            <div className="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-blue-700 block">Soal Dikerjakan</span>
+              <div className="font-heading font-black text-2xl text-blue-900 mt-1">
+                {progressReport.totalQuestionsAttempted}
+              </div>
+              <span className="text-[10px] text-blue-600 font-semibold">Total Butir</span>
+            </div>
+
+            {/* 3. Jumlah Jawaban Benar */}
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-emerald-700 block">Jawaban Benar</span>
+              <div className="font-heading font-black text-2xl text-emerald-800 mt-1">
+                {progressReport.totalCorrect}
+              </div>
+              <span className="text-[10px] text-emerald-600 font-semibold">Poin Benar</span>
+            </div>
+
+            {/* 4. Jumlah Jawaban Salah */}
+            <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-red-700 block">Jawaban Salah</span>
+              <div className="font-heading font-black text-2xl text-red-800 mt-1">
+                {progressReport.totalWrong}
+              </div>
+              <span className="text-[10px] text-red-600 font-semibold">Perlu Belajar</span>
+            </div>
+
+            {/* 5. Nilai */}
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-amber-700 block">Nilai Skor</span>
+              <div className="font-heading font-black text-2xl text-amber-900 mt-1">
+                {progressReport.latestScore}
+              </div>
+              <span className="text-[10px] text-amber-700 font-extrabold">KKTP: {identity.passingScore}</span>
+            </div>
+
+            {/* 6. Rata-rata */}
+            <div className="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-center">
+              <span className="text-[10px] font-extrabold uppercase text-indigo-700 block">Rata-rata Nilai</span>
+              <div className="font-heading font-black text-2xl text-indigo-900 mt-1">
+                {progressReport.averageScore}
+              </div>
+              <span className="text-[10px] text-indigo-600 font-bold">Akurasi {progressReport.averageAccuracy}%</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* PRINTABLE CERTIFICATE / SUMMARY CARD */}
       <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border-4 border-sky-300 relative overflow-hidden print:border-none print:shadow-none print:p-0">
@@ -136,7 +231,7 @@ export const SelesaiView: React.FC<SelesaiViewProps> = ({
 
           <div className="text-center space-y-1">
             <span className="text-slate-400 font-medium">Guru Pengampu:</span>
-            <div className="h-8" /> {/* Space for signature */}
+            <div className="h-8" />
             <p className="font-bold text-slate-800 underline underline-offset-4">{identity.teacherName}</p>
             <span className="text-[10px] text-slate-400">{identity.school}</span>
           </div>
@@ -150,7 +245,18 @@ export const SelesaiView: React.FC<SelesaiViewProps> = ({
           className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
         >
           <Printer className="w-4 h-4" />
-          <span>Cetak / Simpan Bukti Belajar</span>
+          <span>Cetak Piagam Belajar</span>
+        </button>
+
+        <button
+          onClick={() => {
+            audioManager.playClick();
+            onOpenProgressModal();
+          }}
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>Laporan Progres Lengkap</span>
         </button>
 
         <button

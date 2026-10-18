@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { QuizQuestion, StudentSession, MediaIdentity, QuizSubmission } from '../types';
+import { QuizQuestion, StudentSession, MediaIdentity, QuizSubmission, DrillAttemptRecord } from '../types';
 import { audioManager } from '../utils/audio';
 import { sendToGoogleAppsScript } from '../services/apiService';
 import confetti from 'canvas-confetti';
@@ -21,7 +21,8 @@ import {
   Grid,
   List,
   Flame,
-  Bookmark
+  Bookmark,
+  BarChart3
 } from 'lucide-react';
 
 interface LatihanViewProps {
@@ -29,7 +30,9 @@ interface LatihanViewProps {
   identity: MediaIdentity;
   session: StudentSession;
   scriptUrl: string;
-  onFinishQuiz: (score: number) => void;
+  onFinishQuiz: (score: number, attemptRecord?: DrillAttemptRecord) => void;
+  onOpenProgressReport?: () => void;
+  onRecordAttempt?: (attemptRecord: DrillAttemptRecord) => void;
 }
 
 type DrillMode = 10 | 25 | 50 | 150;
@@ -40,7 +43,9 @@ export const LatihanView: React.FC<LatihanViewProps> = ({
   identity,
   session,
   scriptUrl,
-  onFinishQuiz
+  onFinishQuiz,
+  onOpenProgressReport,
+  onRecordAttempt
 }) => {
   // Drill selection config
   const [selectedCount, setSelectedCount] = useState<DrillMode>(25);
@@ -100,6 +105,8 @@ export const LatihanView: React.FC<LatihanViewProps> = ({
     setSelectedAnswers(prev => ({ ...prev, [questionId]: optionIdx }));
   };
 
+  const [latestAttemptRecord, setLatestAttemptRecord] = useState<DrillAttemptRecord | null>(null);
+
   // Evaluate Quiz
   const handleEvaluate = () => {
     if (!isAllAnswered) {
@@ -118,6 +125,64 @@ export const LatihanView: React.FC<LatihanViewProps> = ({
     });
 
     const calculatedScore = Math.round((correctCount / totalCount) * 100);
+    const calculatedWrong = totalCount - correctCount;
+    const isPass = calculatedScore >= identity.passingScore;
+
+    // Calculate subtopic performance breakdown
+    const subtopicMap: Record<string, { total: number; correct: number; wrong: number }> = {};
+    activeQuestions.forEach(q => {
+      const sub = (q as any).subtopic || 'Pecahan dan Desimal';
+      if (!subtopicMap[sub]) {
+        subtopicMap[sub] = { total: 0, correct: 0, wrong: 0 };
+      }
+      subtopicMap[sub].total++;
+      if (selectedAnswers[q.id] === q.correctAnswerIndex) {
+        subtopicMap[sub].correct++;
+      } else {
+        subtopicMap[sub].wrong++;
+      }
+    });
+
+    const subtopicBreakdown = Object.entries(subtopicMap).map(([subtopic, stats]) => ({
+      subtopic,
+      total: stats.total,
+      correct: stats.correct,
+      wrong: stats.wrong,
+      accuracy: stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0
+    }));
+
+    const answersDetail = activeQuestions.map(q => {
+      const studentAns = selectedAnswers[q.id];
+      const isCorrect = studentAns === q.correctAnswerIndex;
+      return {
+        questionId: q.id,
+        questionText: q.question,
+        subtopic: (q as any).subtopic || 'Pecahan dan Desimal',
+        studentAnswerIndex: studentAns ?? -1,
+        studentAnswerText: studentAns !== undefined ? q.options[studentAns] : 'Tidak dijawab',
+        correctAnswerIndex: q.correctAnswerIndex,
+        correctAnswerText: q.options[q.correctAnswerIndex],
+        isCorrect,
+        explanation: q.explanation
+      };
+    });
+
+    const record: DrillAttemptRecord = {
+      id: `drill_${Date.now()}`,
+      timestamp: new Date().toLocaleString('id-ID'),
+      drillTitle: `Drill ${totalCount} Soal (${selectedSubtopic === 'ALL' ? 'Campuran Semua Subtopik' : selectedSubtopic})`,
+      totalQuestions: totalCount,
+      correctAnswers: correctCount,
+      wrongAnswers: calculatedWrong,
+      score: calculatedScore,
+      durationSeconds: elapsedSeconds,
+      status: isPass ? 'TUNTAS' : 'PERLU BIMBINGAN',
+      subtopicBreakdown,
+      answersDetail
+    };
+
+    setLatestAttemptRecord(record);
+    onRecordAttempt?.(record);
 
     if (calculatedScore >= identity.passingScore) {
       audioManager.playVictory();
@@ -438,13 +503,26 @@ export const LatihanView: React.FC<LatihanViewProps> = ({
 
           {/* Action Row */}
           <div className="mt-6 pt-6 border-t border-white/20 flex flex-wrap items-center justify-between gap-3">
-            <button
-              onClick={handleResetQuiz}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Ulangi Drill Latihan</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={handleResetQuiz}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>Ulangi Drill</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  audioManager.playClick();
+                  onOpenProgressReport?.();
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-extrabold transition-all shadow-md cursor-pointer"
+              >
+                <BarChart3 className="w-4 h-4 text-amber-900" />
+                <span>Lihat Laporan Progres Siswa</span>
+              </button>
+            </div>
 
             <button
               disabled={isSubmitting || hasSubmitted}
@@ -779,7 +857,7 @@ export const LatihanView: React.FC<LatihanViewProps> = ({
             <button
               onClick={() => {
                 audioManager.playCorrect();
-                onFinishQuiz(score);
+                onFinishQuiz(score, latestAttemptRecord || undefined);
               }}
               className="flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-heading font-extrabold text-sm sm:text-base shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >

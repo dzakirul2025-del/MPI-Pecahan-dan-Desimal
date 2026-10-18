@@ -1,5 +1,4 @@
-import React from 'react';
-import { ViewStage, MediaIdentity, StudentSession } from '../types';
+import { ViewStage, MediaIdentity, StudentSession, StudentProgressReport } from '../types';
 import { audioManager } from '../utils/audio';
 import { 
   Volume2, 
@@ -9,7 +8,8 @@ import {
   User, 
   BookOpen, 
   Sparkles,
-  HelpCircle
+  HelpCircle,
+  BarChart3
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -18,6 +18,8 @@ interface NavbarProps {
   identity: MediaIdentity;
   session: StudentSession | null;
   onOpenTeacherModal: () => void;
+  onOpenProgressModal: () => void;
+  progressReport: StudentProgressReport | null;
   bgmActive: boolean;
   onToggleBgm: () => void;
   sfxMuted: boolean;
@@ -39,6 +41,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   identity,
   session,
   onOpenTeacherModal,
+  onOpenProgressModal,
+  progressReport,
   bgmActive,
   onToggleBgm,
   sfxMuted,
@@ -123,6 +127,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {sfxMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
+
+            {/* Student Progress Report Button */}
+            {session && (
+              <button
+                onClick={() => {
+                  audioManager.playClick();
+                  onOpenProgressModal();
+                }}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-bold hover:shadow-md hover:from-emerald-600 hover:to-teal-700 transition-all cursor-pointer"
+                title="Lihat Laporan Progres Pengerjaan Siswa"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="hidden sm:inline">Laporan Progres</span>
+                {progressReport && progressReport.totalQuestionsAttempted > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-md bg-white/25 text-[10px] font-black">
+                    {progressReport.latestScore}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* Teacher / Config Modal Button */}
             <button
