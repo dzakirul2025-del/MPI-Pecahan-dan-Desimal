@@ -1,0 +1,6 @@
+{
+  "name": "Media Pembelajaran Interaktif (MPI)",
+  "description": "Platform Media Pembelajaran Interaktif Matematika Kelas 6 tema Pecahan dan Desimal dengan simulasi interaktif, kuis otomatis, refleksi siswa, dan integrasi Google Spreadsheet.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
